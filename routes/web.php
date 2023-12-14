@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,4 +18,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/register', function () {
     return view('admin.auth');
+});
+
+Route::get('/', [AuthController::class, 'auth']);
+Route::get('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'doRegister']);
+Route::post('/login', [AuthController::class, 'doLogin']);
+Route::group(['prefix'=>'admin', 'middleware'=>'auth'], function(){
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin-dashboard');
+    Route::get('/logout',  [AuthController::class, 'logout']);
 });
