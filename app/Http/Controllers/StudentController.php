@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\StudentProfile;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -69,4 +70,44 @@ class StudentController extends Controller
             'status' => 200,
         ]);
     }
+
+
+    public function profile(Request $request)
+    {
+        $user = auth()->user();
+        //dd($user->id);
+        $profile = new StudentProfile;
+
+        $profile->register_id = mt_rand(100000, 999999);;
+        $profile->whatapp_no = $request->whatapp_no;
+        $profile->gender = $request->gender;
+        $profile->present_address = $request->present_address;
+        $profile->class = $request->class;
+        $profile->school = $request->school;
+        $profile->board = $request->board;
+        $profile->subjects = $request->subjects;
+        $profile->guardian_name = $request->guardian_name;
+        $profile->guardian_contact = $request->guardian_contact;
+        $profile->tutor_gender = $request->tutor_gender;
+        $profile->no_of_classes = $request->no_of_classes;
+        $profile->student_id = $user->id;
+        $profile->save();
+
+
+        if($file = $request->file('profile_pic')) {
+            $uploadFile =sha1(time().rand()).'.'.$file->getClientOriginalExtension();
+            $file->move('student/profile_pic/'.$profile->register_id.'/'.$request->register_id, $uploadFile);
+            $profile->profile_pic = 'student/profile_pic/'.$profile->register_id.'/'.$uploadFile;
+            $profile->save();
+        }
+
+        return response()->json([
+            'profile' => $profile,
+            'status' => 200,
+        ]);
+    }
+
+
+
+
 }

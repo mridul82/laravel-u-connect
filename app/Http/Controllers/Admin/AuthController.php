@@ -23,6 +23,7 @@ class AuthController extends Controller
     public function doRegister(Request $request)
     {
 
+        //dd($request->all());
         $user = User::where('email', $request->email)->first();
 
         if(!$user && $request->terms == 'checked')
@@ -46,6 +47,22 @@ class AuthController extends Controller
         }
     }
 
+    public function doLogin(Request $request)
+    {
+        if(\Auth::guard()->attempt(['email'=>$request->email,'password'=>$request->password]))
+        {
+
+
+                return redirect()->route('admin-dashboard');
+
+
+
+        }else
+        {
+            \Session::flash('alert-danger', 'Wrong Credentials');
+            return redirect()->back();
+        }
+    }
 
     public function logout()
     {

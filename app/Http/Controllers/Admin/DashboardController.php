@@ -9,6 +9,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard');
+        $user = \Auth::guard()->user();
+        return view('admin.dashboard', compact('user'));
     }
 }

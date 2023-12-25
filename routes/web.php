@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\TutorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,5 +27,6 @@ Route::post('/register', [AuthController::class, 'doRegister']);
 Route::post('/login', [AuthController::class, 'doLogin']);
 Route::group(['prefix'=>'admin', 'middleware'=>'auth'], function(){
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin-dashboard');
+    Route::get('/tutors', [TutorController::class, 'index']);
     Route::get('/logout',  [AuthController::class, 'logout']);
 });

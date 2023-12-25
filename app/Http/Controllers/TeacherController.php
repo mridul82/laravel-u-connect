@@ -97,7 +97,7 @@ class TeacherController extends Controller
 
         if($file = $request->file('profile_pic')) {
             $uploadFile =sha1(time().rand()).'.'.$file->getClientOriginalExtension();
-            $file->move('tutor/profile_pic/'.$request->register_id, $uploadFile);
+            $file->move('tutor/profile_pic/'.$profile->register_id.'/'.$request->register_id, $uploadFile);
             $profile->profile_pic = 'tutor/profile_pic/'.$profile->register_id.'/'.$uploadFile;
             $profile->save();
         }
