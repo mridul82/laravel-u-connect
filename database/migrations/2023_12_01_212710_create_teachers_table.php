@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('phone_number')->unique( );
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('user_type')->default('teachers')->nullable();
+            $table->string('profile_completed')->default('false')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

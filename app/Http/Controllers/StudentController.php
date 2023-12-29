@@ -21,7 +21,7 @@ class StudentController extends Controller
             'phone_number' => 'required',
             'email' => 'required|email',
             'password' => 'required',
-            'user_type' => 'required',
+
           ]);
 
           if($validatedData->fails()) {
@@ -36,6 +36,7 @@ class StudentController extends Controller
             $student->phone_number = $request->phone_number;
             $student->password = Hash::make($request->password);
             $student->user_type = $request->user_type;
+            $student->profile_completed = 'false';
             $student->save();
 
 
@@ -44,6 +45,7 @@ class StudentController extends Controller
         return response()->json([
             'access_token' => $token,
             'user' => $student,
+            'isProfileComplete' => $student->profile_completed,
             'status' => 200,
         ]);
     }
@@ -67,6 +69,7 @@ class StudentController extends Controller
         return response()->json([
             'access_token' => $token,
             'user' => $student,
+            'isProfileComplete' => $student->profile_completed,
             'status' => 200,
         ]);
     }
@@ -90,8 +93,14 @@ class StudentController extends Controller
         $profile->guardian_contact = $request->guardian_contact;
         $profile->tutor_gender = $request->tutor_gender;
         $profile->no_of_classes = $request->no_of_classes;
+        $profile->reference_id = $request->reference_id;
         $profile->student_id = $user->id;
-        $profile->save();
+        if ($profile->save()) {
+            // Update the 'profile_completed' field for the authenticated user
+            $user->profile_completed = "true";
+            $user->save();
+        }
+
 
 
         if($file = $request->file('profile_pic')) {
@@ -106,6 +115,78 @@ class StudentController extends Controller
             'status' => 200,
         ]);
     }
+
+
+//     public function getProfile() {
+//
+//         $user = auth()->user();
+//
+//         if($user!= null) {
+//             $profile = StudentProfile::where('student_id', $user->id)->latest()->first();
+//             $profile->student = Student::where('id', $profile->student_id)->first();
+//             if($profile->profile_pic != null) {
+//                 $profile->imageUrl = asset($profile->profile_pic);
+//             } else {
+//                 $profile->imageurl = null;
+//             }
+//
+//             return response()->json([
+//                 'profile' => $profile,
+//                 'imageUrl' => $profile->imageUrl,
+//                 'status' => 200,
+//             ]);
+//         } else {
+//             return response()->json([
+//                 'profile' => null,
+//                 'imageUrl' => null,
+//                 'status' => 404,
+//             ]);
+//         }
+//     }
+
+
+    public function getProfile() {
+        $user = auth()->user();
+
+        if ($user) {
+            $profile = StudentProfile::where('student_id', $user->id)->latest()->first();
+
+            if ($profile) {
+                $profile->student = Student::where('id', $profile->student_id)->first();
+
+                if ($profile->profile_pic != null) {
+                    $profile->imageUrl = asset($profile->profile_pic);
+                } else {
+                    $profile->imageUrl = null; // Corrected attribute name
+                }
+
+                return response()->json([
+                    'profile' => $profile,
+                    'imageUrl' => $profile->imageUrl,
+
+                    'status' => 200,
+                ]);
+            } else {
+                return response()->json([
+                    'profile' => null,
+                    'imageUrl' => null,
+
+                    'status' => 404,
+                ]);
+            }
+        } else {
+            return response()->json([
+                'profile' => null,
+                'imageUrl' => null,
+
+                'status' => 404,
+            ]);
+        }
+
+
+    }
+
+
 
 
 

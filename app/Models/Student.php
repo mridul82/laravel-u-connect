@@ -18,6 +18,7 @@ class Student extends Authenticatable
         'email',
         'phone_number',
         'user_type',
+        'profile_completed',
 
     ];
 

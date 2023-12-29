@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('no_of_classes')->nullable();
             $table->string('convenient_days')->nullable();
             $table->string('convenient_time')->nullable();
+            $table->string('reference_id')->nullable();
             $table->unsignedBigInteger('student_id'); // Assuming this is the reference to the students table
             $table->foreign('student_id')->references('id')->on('students');
             $table->timestamps();

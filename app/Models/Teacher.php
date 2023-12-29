@@ -17,6 +17,8 @@ class Teacher extends Authenticatable
         'name',
         'email',
         'phone_number',
+        'user_type',
+        'profile_completed',
 
     ];
 

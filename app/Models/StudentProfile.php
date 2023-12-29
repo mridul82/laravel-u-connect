@@ -12,7 +12,7 @@ class StudentProfile extends Model
     protected $fillable = [
         'register_id', 'whatapp_no', 'gender', 'present_address', 'area_locality',
          'city', 'pin_code','class', 'school', 'sujects', 'board', 'guardian_name', 'guardian_contact',
-         'profile_pic', 'tutor_gender', 'no_of_classes', 'convenient_days', 'convenient_time', 'student_id'
+         'profile_pic', 'tutor_gender', 'no_of_classes', 'convenient_days', 'convenient_time', 'student_id','reference_id'
 
     ];
 }

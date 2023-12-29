@@ -32,11 +32,14 @@ Route::middleware('auth:sanctum')
         ->get('/exam-results/{examId}',
         [ExamResultController::class, 'getExamResults']);
 
-Route::group(['middleware' => 'auth:sanctum'], function(){
+
+
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('/teacher-profile', [TeacherController::class, 'profile']);
     Route::get('/teacher-profile', [TeacherController::class, 'getProfile']);
 
     Route::post('/student-profile', [StudentController::class, 'profile']);
+    Route::get('/student-profile', [StudentController::class, 'getProfile']);
 });
 
 

@@ -36,6 +36,8 @@ class TeacherController extends Controller
             $teacher->email = $request->email;
             $teacher->phone_number = $request->phone_number;
             $teacher->password = Hash::make($request->password);
+            $teacher->user_type = $request->user_type;
+            $teacher->profile_completed = 'false';
             $teacher->save();
 
 
@@ -44,6 +46,7 @@ class TeacherController extends Controller
         return response()->json([
             'access_token' => $token,
             'user' => $teacher,
+            'isProfileComplete' => $teacher->profile_completed,
             'status' => 200,
         ]);
     }
@@ -68,6 +71,7 @@ class TeacherController extends Controller
         return response()->json([
             'access_token' => $token,
             'user' => $teacher,
+            'isProfileComplete' => $teacher->profile_completed,
             'status' => 200,
         ]);
     }
@@ -149,18 +153,45 @@ class TeacherController extends Controller
 
         $user = auth()->user();
 
+        if ($user) {
+            $profile = TeacherProfile::where('teacher_id', $user->id)->latest()->first();
+            if($profile) {
+                $profile->teacher = Teacher::where('id', $profile->teacher_id)->first();
 
-        $profile = TeacherProfile::where('teacher_id', $user->id)->latest()->first();
-        $profile->teacher = Teacher::where('id', $profile->teacher_id)->first();
-        $profile->imageUrl = asset($profile->profile_pic);
+                if ($profile->profile_pic != null) {
+                    $profile->imageUrl = asset($profile->profile_pic);
+                } else {
+                    $profile->imageUrl = null; // Corrected attribute name
+                }
+                return response()->json([
+                    'profile' => $profile,
+                    'imageUrl' => $profile->imageUrl,
 
-        return response()->json([
-            'profile' => $profile,
-            'imageUrl' => $profile->imageUrl,
-            'status' => 200,
-        ]);
+                    'status' => 200,
+                ]);
+
+
+            }
+
+
+            else {
+                return response()->json([
+                    'profile' => null,
+                    'imageUrl' => null,
+
+                    'status' => 404,
+                ]);
+            }
+        } else {
+            return response()->json([
+                'profile' => null,
+                'imageUrl' => null,
+
+                'status' => 404,
+            ]);
+        }
+
+
+
     }
-
-
-
 }
