@@ -12,43 +12,44 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\PersonalAccessToken;
 
+use App\Mail\RegistrationMail;
+use Illuminate\Support\Facades\Mail;
+
 class StudentController extends Controller
 {
-    public function register(Request $request) {
-        // Validate and create student
-        $validatedData = Validator::make($request->all(), [
-            'name' => 'required',
-            'phone_number' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-
-          ]);
-
-          if($validatedData->fails()) {
-            return response()->json($validatedData->errors(), 422);
-          }
 
 
+    public function registerStudent(Request $request)
+{
+    // Validation rules for student registration
+    $validatedData = $request->validate([
+        'name' => 'required',
+        'phone' => 'required|unique:students,phone_number', // Unique validation for phone number in students table
+        'email' => 'required|email|unique:students,email', // Unique validation for email in students table
+        'password' => 'required',
+    ]);
 
-          $student = new Student;
-            $student->name = $request->name;
-            $student->email = $request->email;
-            $student->phone_number = $request->phone_number;
-            $student->password = Hash::make($request->password);
-            $student->user_type = $request->user_type;
-            $student->profile_completed = 'false';
-            $student->save();
+    // Create a new Student instance and save to the database
+    $student = new Student;
+    $student->name = $validatedData['name'];
+    $student->email = $validatedData['email'];
+    $student->phone_number = $validatedData['phone'];
+    $student->password = Hash::make($validatedData['password']);
+    $student->user_type = 'students'; // Set the user type for students
+    $student->profile_completed = false;
+    //dd($validatedData);
+    $student->save();
 
+    // Generate token for authentication (if using Sanctum or Passport)
+    $token = $student->createToken('student_auth_token')->plainTextToken;
 
-        $token = $student->createToken('student_auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'user' => $student,
-            'isProfileComplete' => $student->profile_completed,
-            'status' => 200,
-        ]);
-    }
+    return response()->json([
+        'access_token' => $token,
+        'user' => $student,
+        'isProfileComplete' => $student->profile_completed,
+        'status' => 200,
+    ]);
+}
 
 
     public function login(Request $request) {
@@ -78,6 +79,7 @@ class StudentController extends Controller
     public function profile(Request $request)
     {
         $user = auth()->user();
+
         //dd($user->id);
         $profile = new StudentProfile;
 
@@ -99,6 +101,8 @@ class StudentController extends Controller
             // Update the 'profile_completed' field for the authenticated user
             $user->profile_completed = "true";
             $user->save();
+            Mail::to($user->email)->send(new RegistrationMail($user));
+
         }
 
 
@@ -114,6 +118,7 @@ class StudentController extends Controller
             'profile' => $profile,
             'status' => 200,
         ]);
+
     }
 
 

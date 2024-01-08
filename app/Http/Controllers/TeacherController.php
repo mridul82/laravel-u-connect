@@ -18,37 +18,41 @@ class TeacherController extends Controller
 
     public function register(Request $request) {
         // Validate and create teacher
-        $validatedData = Validator::make($request->all(), [
-            'name' => 'required',
-            'phone_number' => 'required',
-            'email' => 'required|email',
-            'password' => 'required',
-          ]);
-
-          if($validatedData->fails()) {
-            return response()->json($validatedData->errors(), 422);
-          }
-
-
-
-          $teacher = new Teacher;
-            $teacher->name = $request->name;
-            $teacher->email = $request->email;
-            $teacher->phone_number = $request->phone_number;
-            $teacher->password = Hash::make($request->password);
-            $teacher->user_type = $request->user_type;
-            $teacher->profile_completed = 'false';
-            $teacher->save();
+//         $validatedData = Validator::make($request->all(), [
+//             'name' => 'required',
+//             'phone_number' => 'required',
+//             'email' => 'required|email',
+//             'password' => 'required',
+//           ]);
+//
+//           if($validatedData->fails()) {
+//             return response()->json($validatedData->errors(), 422);
+//           }
 
 
-        $token = $teacher->createToken('teacher_auth_token')->plainTextToken;
 
-        return response()->json([
-            'access_token' => $token,
-            'user' => $teacher,
-            'isProfileComplete' => $teacher->profile_completed,
-            'status' => 200,
-        ]);
+//           $teacher = new Teacher;
+//             $teacher->name = $request->name;
+//             $teacher->email = $request->email;
+//             $teacher->phone_number = $request->phone;
+//             $teacher->password = Hash::make($request->password);
+//             $teacher->user_type = $request->selectedButton;
+//             $teacher->profile_completed = 'false';
+//             $teacher->save();
+//
+//
+//         $token = $teacher->createToken('teacher_auth_token')->plainTextToken;
+//
+//         return response()->json([
+//             'access_token' => $token,
+//             'user' => $teacher,
+//             'isProfileComplete' => $teacher->profile_completed,
+//             'status' => 200,
+//         ]);
+
+return response()->json([
+    'res' => $request->phone,
+]);
     }
 
     public function login(Request $request) {
@@ -96,7 +100,13 @@ class TeacherController extends Controller
         $profile->preferred_location = $request->preferred_location;
         $profile->preferred_time = $request->preferred_time;
         $profile->teacher_id = $user->id;
-        $profile->save();
+
+        if ($profile->save()) {
+            // Update the 'profile_completed' field for the authenticated user
+            $user->profile_completed = "true";
+            $user->save();
+        }
+
 
 
         if($file = $request->file('profile_pic')) {

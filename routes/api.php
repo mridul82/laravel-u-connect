@@ -25,12 +25,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/teacher-register', [TeacherController::class, 'register']);
 Route::post('/teacher-login', [TeacherController::class, 'login']);
 
-Route::post('/student-register', [StudentController::class, 'register']);
+Route::post('/student-register', [StudentController::class, 'registerStudent']);
+
 Route::post('/student-login', [StudentController::class, 'login']);
 
-Route::middleware('auth:sanctum')
-        ->get('/exam-results/{examId}',
-        [ExamResultController::class, 'getExamResults']);
+
 
 
 
