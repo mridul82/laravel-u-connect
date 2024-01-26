@@ -8,25 +8,36 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Address;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
 
-use App\Models\Student;
-use App\models\StudentProfile;
+use App\Models\Teacher;
+use App\Models\TeacherProfile;
 
-class RegistrationMail extends Mailable
+class RegistrationTeacher extends Mailable
 {
+
     use Queueable, SerializesModels;
+
+    public Teacher $user;
+    public TeacherProfile $profile;
+   // public array $attachments;
+   public array $localAttachments = [];
 
     /**
      * Create a new message instance.
      */
+
     public function __construct(
-        protected Student $user,
-        protected StudentProfile $profile
+        Teacher $user,
+        TeacherProfile $profile,
+        array $localAttachments
     )
     {
         //
-
+        $this->user = $user;
+        $this->profile = $profile;
+        $this->localAttachments = $localAttachments;
     }
 
     /**
@@ -36,7 +47,7 @@ class RegistrationMail extends Mailable
     {
         return new Envelope(
             from: new Address('urja.connect@findtutor.tech', 'Urja Connect'),
-            subject: 'Welcome to Urja Connect!'
+            subject: 'Welcome to Urja Connect!',
         );
     }
 
@@ -46,13 +57,13 @@ class RegistrationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.test_registration',
+            view: 'emails.teacher_registration',
             with: [
                 'name' => $this->user->name,
                 'email' => $this->user->email,
                 'register_id' => $this->profile->register_id,
-                //'attachment_path' => $this->attachment_path
-            ],
+
+            ]
         );
     }
 
@@ -63,6 +74,10 @@ class RegistrationMail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromPath($this->localAttachments['file1']),
+            Attachment::fromPath($this->localAttachments['file2']),
+            Attachment::fromPath($this->localAttachments['file3']),
+        ];
     }
 }

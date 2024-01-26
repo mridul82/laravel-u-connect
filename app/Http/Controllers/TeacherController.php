@@ -12,47 +12,41 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\PersonalAccessToken;
 
+use App\Mail\RegistrationTeacher;
+use Illuminate\Support\Facades\Mail;
+
 class TeacherController extends Controller
 {
 
 
     public function register(Request $request) {
-        // Validate and create teacher
-//         $validatedData = Validator::make($request->all(), [
-//             'name' => 'required',
-//             'phone_number' => 'required',
-//             'email' => 'required|email',
-//             'password' => 'required',
-//           ]);
-//
-//           if($validatedData->fails()) {
-//             return response()->json($validatedData->errors(), 422);
-//           }
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'phone' => 'required|unique:teachers,phone_number', // Unique validation for phone number in teachers table
+            'email' => 'required|email|unique:teachers,email', // Unique validation for email in teachers table
+            'password' => 'required',
+        ]);
 
 
 
-//           $teacher = new Teacher;
-//             $teacher->name = $request->name;
-//             $teacher->email = $request->email;
-//             $teacher->phone_number = $request->phone;
-//             $teacher->password = Hash::make($request->password);
-//             $teacher->user_type = $request->selectedButton;
-//             $teacher->profile_completed = 'false';
-//             $teacher->save();
-//
-//
-//         $token = $teacher->createToken('teacher_auth_token')->plainTextToken;
-//
-//         return response()->json([
-//             'access_token' => $token,
-//             'user' => $teacher,
-//             'isProfileComplete' => $teacher->profile_completed,
-//             'status' => 200,
-//         ]);
+              $teacher = new Teacher;
+                $teacher->name = $request->name;
+                $teacher->email = $request->email;
+                $teacher->phone_number = $request->phone;
+                $teacher->password = Hash::make($request->password);
+                $teacher->user_type = $request->selectedButton;
+                $teacher->profile_completed = 'false';
+                $teacher->save();
 
-return response()->json([
-    'res' => $request->phone,
-]);
+
+            $token = $teacher->createToken('teacher_auth_token')->plainTextToken;
+
+            return response()->json([
+                'access_token' => $token,
+                'user' => $teacher,
+                'isProfileComplete' => $teacher->profile_completed,
+                'status' => 200,
+            ]);
     }
 
     public function login(Request $request) {
@@ -84,7 +78,13 @@ return response()->json([
     public function profile(Request $request)
     {
         $user = auth()->user();
-        //dd($user->id);
+        $attachments = [
+            "file1" => public_path('tutor/welcome_kit/QUESTION PAPER TEACHER_TEMPLATE.docx'),
+            "file2" => public_path('tutor/welcome_kit/TEACHER_TEMPLATE.pdf'),
+            "file3" => public_path('tutor/welcome_kit/UC_CALENDAR_2024.pdf'),
+            // Add more attachments as needed
+        ];
+       // dd($attachments);
         $profile = new TeacherProfile;
 
         $profile->register_id = mt_rand(100000, 999999);;
@@ -105,6 +105,8 @@ return response()->json([
             // Update the 'profile_completed' field for the authenticated user
             $user->profile_completed = "true";
             $user->save();
+            Mail::to($user->email)->send(new RegistrationTeacher($user, $profile, $attachments));
+
         }
 
 
@@ -202,6 +204,23 @@ return response()->json([
         }
 
 
+
+    }
+
+    public function sendmail() {
+
+        $user = auth()->user();
+        $attachments = [
+            "file1" => public_path('tutor/welcome_kit/QUESTION PAPER TEACHER_TEMPLATE.docx'),
+            "file2" => public_path('tutor/welcome_kit/TEACHER_TEMPLATE.pdf'),
+            "file3" => public_path('tutor/welcome_kit/UC_CALENDAR_2024.pdf'),
+            // Add more attachments as needed
+        ];
+
+        $profile = TeacherProfile::where('teacher_id', $user->id)->first();
+        Mail::to($user->email)->send(new RegistrationTeacher($user, $profile, $attachments));
+
+        echo "mail send";
 
     }
 }

@@ -101,7 +101,7 @@ class StudentController extends Controller
             // Update the 'profile_completed' field for the authenticated user
             $user->profile_completed = "true";
             $user->save();
-            Mail::to($user->email)->send(new RegistrationMail($user));
+            Mail::to($user->email)->send(new RegistrationMail($user, $profile));
 
         }
 
