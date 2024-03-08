@@ -3,7 +3,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="index.html">
+        <a class="nav-link " href="{{url('/admin/dashboard')}}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -187,7 +187,12 @@
           <span>Profile</span>
         </a>
       </li><!-- End Profile Page Nav -->
-
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{{url('/admin/exams')}}">
+            <i class="bi bi-book"></i>
+          <span>Exam </span>
+        </a>
+      </li>
       <li class="nav-item">
         <a class="nav-link collapsed" href={{url('/admin/tutors')}}>
           <i class="bi bi-question-circle"></i>
@@ -221,7 +226,7 @@
         <ul class="sidebar-nav" id="sidebar-nav">
 
           <li class="nav-item">
-            <a class="nav-link " href="index.html">
+            <a class="nav-link " href="{{url('/admin/dashboard')}}">
               <i class="bi bi-grid"></i>
               <span>Dashboard</span>
             </a>
@@ -405,7 +410,12 @@
               <span>Profile</span>
             </a>
           </li><!-- End Profile Page Nav -->
-
+          <li class="nav-item">
+            <a class="nav-link collapsed" href="{{url('/admin/exams')}}">
+                <i class="bi bi-book"></i>
+              <span>Exam</span>
+            </a>
+          </li>
           <li class="nav-item">
             <a class="nav-link collapsed" href="{{url('/admin/tutors')}}">
               <i class="bi bi-question-circle"></i>
@@ -414,7 +424,7 @@
           </li><!-- End F.A.Q Page Nav -->
 
           <li class="nav-item">
-            <a class="nav-link collapsed" href="#">
+            <a class="nav-link collapsed" href="{{url('/admin/students')}}">
               <i class="bi bi-envelope"></i>
               <span>Students</span>
             </a>

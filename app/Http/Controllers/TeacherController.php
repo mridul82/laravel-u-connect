@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use App\Models\TeacherProfile;
+use App\Models\ActivateModules;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Validator;
@@ -87,7 +88,12 @@ class TeacherController extends Controller
        // dd($attachments);
         $profile = new TeacherProfile;
 
-        $profile->register_id = mt_rand(100000, 999999);;
+        // Get the last register_id directly from the database
+        $lastRegisterId = TeacherProfile::max('register_id');
+
+
+        //$profile->register_id = mt_rand(100000, 999999);;
+        $profile->register_id = $lastRegisterId ? $lastRegisterId + 1 : 100;
         $profile->whatapp_no = $request->whatapp_no;
         $profile->gender = $request->gender;
         $profile->present_address = $request->present_address;
@@ -223,4 +229,34 @@ class TeacherController extends Controller
         echo "mail send";
 
     }
+
+    public function getTeachers()
+    {
+//         $active_teacher = ActivateModules::where('module_name', 'teacher')->where('is_active', 1)->get();
+//
+//         foreach ($active_teacher as $key => $tutor) {
+//
+//             $tutor->profile = TeacherProfile::where('teacher_id', $tutor->module_id)->first();
+//         }
+//
+//
+//         return response()->json([
+//             'teachers' => $active_teacher,
+//
+//             'status' => 200,
+//         ]);
+
+
+        $tutors = ActivateModules::where('module_name', 'teacher')->where('is_active', 1)->get();
+        foreach ($tutors as $key => $tutor) {
+            $tutor->profile = TeacherProfile::where('teacher_id', $tutor->module_id)->get();
+        }
+        return response()->json([
+            'teachers' => $tutors,
+
+            'status' => 200,
+        ]);
+    }
+
+
 }

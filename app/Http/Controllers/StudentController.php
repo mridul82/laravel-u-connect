@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\StudentProfile;
+use App\Models\StudentExam;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -15,53 +16,77 @@ use Laravel\Sanctum\PersonalAccessToken;
 use App\Mail\RegistrationMail;
 use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Validation\ValidationException;
+
 class StudentController extends Controller
 {
 
 
     public function registerStudent(Request $request)
 {
-    // Validation rules for student registration
-    $validatedData = $request->validate([
+
+try {
+
+       // Validation rules for student registration
+       $validatedData = $request->validate([
         'name' => 'required',
         'phone' => 'required|unique:students,phone_number', // Unique validation for phone number in students table
         'email' => 'required|email|unique:students,email', // Unique validation for email in students table
         'password' => 'required',
     ]);
 
-    // Create a new Student instance and save to the database
-    $student = new Student;
-    $student->name = $validatedData['name'];
-    $student->email = $validatedData['email'];
-    $student->phone_number = $validatedData['phone'];
-    $student->password = Hash::make($validatedData['password']);
-    $student->user_type = 'students'; // Set the user type for students
-    $student->profile_completed = false;
-    //dd($validatedData);
-    $student->save();
+   // dd($validatedData);
+     // Create a new Student instance and save to the database
+     $student = new Student;
+     $student->name = $validatedData['name'];
+     $student->email = $validatedData['email'];
+     $student->phone_number = $validatedData['phone'];
+     $student->password = Hash::make($validatedData['password']);
+     $student->user_type = 'students'; // Set the user type for students
+     $student->profile_completed = false;
+     //dd($validatedData);
+     $student->save();
 
-    // Generate token for authentication (if using Sanctum or Passport)
-    $token = $student->createToken('student_auth_token')->plainTextToken;
+     // Generate token for authentication (if using Sanctum or Passport)
+     $token = $student->createToken('student_auth_token')->plainTextToken;
 
+     return response()->json([
+         'access_token' => $token,
+         'user' => $student,
+         'isProfileComplete' => $student->profile_completed,
+         'status' => 200,
+     ]);
+} catch (ValidationException $exception) {
     return response()->json([
-        'access_token' => $token,
-        'user' => $student,
-        'isProfileComplete' => $student->profile_completed,
-        'status' => 200,
-    ]);
+        'status' => 'error',
+        'msg'    => 'Error',
+        'errors' => $exception->errors(),
+    ], 422);
+}
+
+
 }
 
 
     public function login(Request $request) {
-        // Attempt login
+
+        try {
+
+         // Validation rules for student registration
+       $validatedData = $request->validate([
+        'email' => 'required|email', // Unique validation for email in students table
+        'password' => 'required',
+    ]);
+            // Attempt login
 
         $student = Student::where('email', $request->email)->first();
 
 
         if (!$student || !Hash::check($request->password, $student->password)) {
-            return response([
-                'message' => ['These credentials do not match our records.'],
 
+            return response()->json([
+                'status' => 'error',
+                'msg'    => 'These credentials do not match our records.',
             ], 404);
         }
 
@@ -73,6 +98,17 @@ class StudentController extends Controller
             'isProfileComplete' => $student->profile_completed,
             'status' => 200,
         ]);
+
+
+        }catch (ValidationException $exception) {
+    return response()->json([
+        'status' => 'error',
+        'msg'    => 'Error',
+        'errors' => $exception->errors(),
+    ], 422);
+}
+
+
     }
 
 
@@ -83,7 +119,11 @@ class StudentController extends Controller
         //dd($user->id);
         $profile = new StudentProfile;
 
-        $profile->register_id = mt_rand(100000, 999999);;
+        // Get the last register_id directly from the database
+        $lastRegisterId = StudentProfile::max('register_id');
+
+        //$profile->register_id = mt_rand(100000, 999999);
+        $profile->register_id =  $lastRegisterId ? $lastRegisterId + 1 : 210;
         $profile->whatapp_no = $request->whatapp_no;
         $profile->gender = $request->gender;
         $profile->present_address = $request->present_address;
@@ -114,8 +154,11 @@ class StudentController extends Controller
             $profile->save();
         }
 
+
+
         return response()->json([
             'profile' => $profile,
+
             'status' => 200,
         ]);
 
@@ -165,17 +208,28 @@ class StudentController extends Controller
                     $profile->imageUrl = null; // Corrected attribute name
                 }
 
+                $paymentExists = StudentExam::where('student_id', $user->id)
+                ->where('payment', 0)
+                ->exists();
+                if($paymentExists == true) {
+                    $profile->amount = StudentExam::where('student_id', $user->id)
+                    ->where('payment', 0)
+                    ->sum('test_price');
+                }
+
+
+
                 return response()->json([
                     'profile' => $profile,
                     'imageUrl' => $profile->imageUrl,
-
+                    'paymentExists' => $paymentExists,
                     'status' => 200,
                 ]);
             } else {
                 return response()->json([
                     'profile' => null,
                     'imageUrl' => null,
-
+                    'paymentExists' => $paymentExists,
                     'status' => 404,
                 ]);
             }

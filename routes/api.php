@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\StudentController;
+use App\Http\controllers\NewPasswordController;
+use App\Http\Controllers\ExamController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +31,14 @@ Route::post('/student-register', [StudentController::class, 'registerStudent']);
 
 Route::post('/student-login', [StudentController::class, 'login']);
 
+// Route::post('forgot-password', [NewPasswordController::class, 'forgotPassword']);
+// Route::post('reset-password', [NewPasswordController::class, 'reset']);
+
+//Route::get('forget-password', [NewPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
+Route::post('/forget-password', [NewPasswordController::class, 'submitForgetPasswordForm']);
+
+//teachers
+Route::get('/get-teachers', [TeacherController::class, 'getTeachers']);
 
 
 
@@ -41,6 +51,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/student-profile', [StudentController::class, 'getProfile']);
 
     Route::get('/sendmail', [TeacherController::class, 'sendmail']);
+
+    //Exam
+    Route::get('/exams/{id}', [ExamController::class, 'index']);
+    Route::post('/add-exam', [ExamController::class, 'addExam']);
+    Route::get('/exam-summary/{id}', [ExamController::class, 'examSummary']);
+
+
 });
 
 

@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
+            $table->string('test_code');
+            $table->string('test_series_name');
+            $table->string('subjects');
+            $table->string('chapter_name');
+            $table->string('test_price')->nullable();
             $table->timestamps();
         });
     }

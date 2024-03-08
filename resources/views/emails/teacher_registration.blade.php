@@ -7,8 +7,7 @@
 
 <body>
     <div>Dear {{$name}} ,&nbsp;</div>
-    <p><br /> Welcome to Urja Connect! . We are thrilled to welcome you as a Teacher Partner for Social Science and
-        Geography. With Urja Connect, you have the exciting opportunity to both learn and earn simultaneously.</p>
+    <p><br /> Welcome to Urja Connect! . We are thrilled to welcome you as a Teacher Partner . With Urja Connect, you have the exciting opportunity to both learn and earn simultaneously.</p>
     <div><br />
         <div>
             <div>Your&nbsp;<strong>teacher ID</strong>&nbsp;is&nbsp;<strong>{{$register_id}}</strong>, which will be utilized by
@@ -25,8 +24,10 @@
                     50/- per student</strong>&nbsp;for each chapter's paper correction and&nbsp;<strong>Rs.
                     10/-</strong>&nbsp;per student for enrollments in subjects other than Social Science and Geography
                 using your teacher ID.<br /><br /><strong>We will be conducting a training session in consultation with
-                    you to explain the process of question paper creation. The template for Question Paper creation is
-                    attached in this mail which will be used for Question paper preparation .</strong></div>
+                    you to explain the process of question paper creation.
+                    {{-- The template for Question Paper creation is
+                    attached in this mail which will be used for Question paper preparation . --}}
+                </strong></div>
             <div><strong> Thank you once again for joining Urja Connect. Wishing you a very&nbsp;Happy New Year and
                     eagerly anticipate a fruitful collaboration.</strong></div>
         </div>
